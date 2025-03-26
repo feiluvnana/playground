@@ -12,6 +12,4 @@ export async function initialize() {
     .catch((err: Error) => {
       console.error(`[PrismaService] Error connecting to database: ${err}`);
     });
-
-  PrismaService.user.findFirst({ omit: { password: false } }).then((user) => user?.password);
 }
