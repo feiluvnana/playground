@@ -1,23 +1,25 @@
+import "reflect-metadata";
+
 import express from "express";
 import fs from "fs";
 import path from "path";
+import dotenv from "dotenv";
 
 async function bootstrap() {
-  const serviceFolder = path.join(__dirname, "services");
-  const serviceFiles = fs.readdirSync(serviceFolder);
   await Promise.all(
-    serviceFiles.map(async (file) => {
-      const service = await import(`${serviceFolder}/${file}`);
-      await service.initialize();
-    }),
+    fs.readdirSync(path.resolve(__dirname, "./services")).map(async (file) => {
+      if (file.endsWith(".ts") || file.endsWith(".js")) {
+        const { init } = await import(`./services/${file}`);
+        await init();
+      }
+    })
   );
 
   const app = express();
-  app.use(express.json());
-  app.use(express.urlencoded({ extended: true }));
-  app.listen(3000, () => {
-    console.log("Server is running on port 3000");
+  app.listen(process.env.PORT, () => {
+    console.log(`Server is running on port ${process.env.PORT}`);
   });
 }
 
+dotenv.config();
 bootstrap();
